@@ -37,4 +37,4 @@
 cmake-build-Release/*
 .clangd
 .clang-format
-
+*.project
