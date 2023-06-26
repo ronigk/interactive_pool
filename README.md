@@ -1,5 +1,5 @@
 # interactive_pool
-A pool of resources / threads, in a single header file that allows the measurement of connection times and the use of specialized plugins
+A multi-platform pool of resources / threads, in a single header file that allows the measurement of connection times and the use of specialized plugins
 to issue alerts or trigger actions when access times to resources exceed a set threshold.
 
 In the "include" folder is the header file with the definition of the class and all its plugins.
@@ -170,3 +170,21 @@ void worker_with_scope_average_detector(interactive_pool< Foo > * pool)
 }
 
 ```
+
+## Compiling examples
+Detailed usage of all items are introduced in examples. To compile the examples just follow the bellow instructions :
+
+### Windows Users
+In vs folder you can find a VS Solution. All examples are defined as projects an you can compile all 
+
+### Linux Users  
+Justo go to the desired example an follow the next steps : 
+
+```
+cd ./interactive_pool/examples/scoped_pool_with_average_time_control/
+md build
+cd build
+cmake ...
+make all
+```
+
