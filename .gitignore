@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+.codelite/*
+.ctagsd/*
+*.json
+*.workspace
+cmake-build-Release/*
+.clangd
+.clang-format
+
