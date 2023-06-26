@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+.codelite/*
+.ctagsd/*
+*.json
+*.workspace
+cmake-build-Release/*
+.clangd
+.clang-format
+*.project
+vs/.vs*
+vs/x64/*
+*.vcxproj.filters
+*.vcxproj.user
+**/x64/*
