@@ -155,7 +155,7 @@ private:
 
 
 /// base class for detectors
-typedef struct  { virtual void set_elapsed_time(const uint32_t&) = 0; } base_detector;
+typedef struct tag_base_detector { virtual void set_elapsed_time(const uint32_t&) = 0; } base_detector;
 
 
 /// interactive_average_detector
@@ -269,7 +269,7 @@ template < class T> class interactive_pool_scoped_connection
 		(_p) = _pool->get_item(max_wait_ms, time_elapsed_ms);
 		if( _detector && time_elapsed_ms)
 		{
-			_detector->set_elapsed_time(time_elapsed_ms->elapsed_time.count());
+			_detector->set_elapsed_time(static_cast<uint32_t>(time_elapsed_ms->elapsed_time.count()));
 		}
 	}
 	

@@ -1,9 +1,19 @@
+/* .....................................................................
+ * scoped_pool_with_peak_time_control
+ * Show the usage of the interactive_pool using metrics and a plugin 
+ * that trigger an alert when the connection time exceeds a configured
+ * threshold value
+ * LICENSE: MIT
+ * developed by Roni Gonzalez - <roni.gonzalez@interconetica.com>
+ * on june, 2023
+ * ..................................................................... */
 #include <iostream>
 #include "./../../include/interactive_pool.h"
 #include <thread>
 #include <chrono>
 #include <algorithm>
-
+#include <string>
+#include <vector>
 
 using namespace std;
 

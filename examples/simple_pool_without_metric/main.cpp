@@ -3,7 +3,7 @@
  * Show the usage of the interactive_pool as a simple pool without
  * taking sistem metrics
  * LICENSE: MIT
- * deloped by Roni Gonzalez - <roni.gonzalez@interconetica.com>
+ * developed by Roni Gonzalez - <roni.gonzalez@interconetica.com>
  * on june, 2023
  * ..................................................................... */
 
@@ -12,7 +12,8 @@
 #include <thread>
 #include <chrono>
 #include <algorithm>
-
+#include <string>
+#include <vector>
 
 
 using namespace std;
@@ -111,7 +112,7 @@ void worker(interactive_pool< MyConnectors >* pool)
 		try
 		{
 			// max waits 1 second to get an instance
-			interactive_pool_scoped_connection c(pool, 1000);
+			interactive_pool<MyConnectors>::item c = pool->get_item(1000);
 
 			// test connection
 			if( c->is_connected() )
@@ -119,6 +120,9 @@ void worker(interactive_pool< MyConnectors >* pool)
 				c->execute("keys *");
 				cout << "Thread " << std::this_thread::get_id() << " finished to execute command" << endl;
 			}
+
+			// reelase item
+			pool->set_item(c);
 		}
 		catch (std::exception& e)
 		{

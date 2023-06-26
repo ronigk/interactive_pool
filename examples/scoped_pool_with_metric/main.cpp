@@ -1,15 +1,24 @@
+/* .....................................................................
+ * scoped_pool_with_metric
+ * Show the usage of the interactive_pool using metrics and scoped manager 
+ * class.
+ * LICENSE: MIT
+ * developed by Roni Gonzalez - <roni.gonzalez@interconetica.com>
+ * on june, 2023
+ * ..................................................................... */
 #include <iostream>
 #include "./../../include/interactive_pool.h"
 #include <thread>
 #include <chrono>
 #include <algorithm>
-
+#include <string>
+#include <vector>
 
 using namespace std;
 
 const int threads = 15;				// Working threads , that consumes thepool resources
 const int interval = 5;				// Interval on each thread iteration
-const int operations  = 20;		// Count of writes of each thread before to finish
+const int operations  = 20;			// Count of writes of each thread before to finish
 const int work_duration_ms = 100;	// fake value in ms simulating a task duration
 const int pool_size = 2;			// Size of pool ( amount of resources )
 
