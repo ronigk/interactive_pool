@@ -136,33 +136,4 @@ void worker(interactive_pool< MyConnectors >* pool)
 }
 
 
-
-int main()
-{
-
-	// pools of MyConnectors class 
-	interactive_pool< MyConnectors > pool(pool_size);
-	
-	// container for all threads 
-	std::vector<std::thread> t(threads);
-
-	// create threads passing the pool instance
-	std::for_each(t.begin(), t.end(), [&pool](auto& th) {th = std::thread(&worker, &pool);});
-
-	// wait for fnish all threads
-	std::for_each(t.begin(), t.end(), [](auto& th) {th.join(); });
-
-	try
-	{
-		// befor end do this check to verify that threads are correctly implemented and are releasin all pool instances
-		pool.check_before_destruct();
-	}
-	catch (std::exception&  e)
-	{
-		cout << "Exception " << string(e.what());
-	}
-
-	cout << "End of execution" << endl;
-	
-	return 0;
-}
+d

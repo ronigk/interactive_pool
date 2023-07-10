@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <atomic>
 
 using namespace std;
 
@@ -23,7 +22,6 @@ const int interval = 5;				// Interval on each thread iteration
 const int operations  = 20;		// Count of writes of each thread before to finish
 const int work_duration_ms = 100;	// fake value in ms simulating a task duration
 const int pool_size = 2;			// Size of pool ( amount of resources )
-std::atomic<uint64_t>  g_counter = 0;			// used in fake is connected function 
 
 // class used in pool simulating some resource
 class Foo {
@@ -33,18 +31,6 @@ public:
 		
 		std::this_thread::sleep_for(std::chrono::milliseconds(work_duration_ms));
 		// cout <<"Thread " << std::this_thread::get_id() << " Finished to write" << endl;
-	}
-	
-	bool is_connected() {
-			
-		g_counter++;
-		return ((g_counter % 2) == 0) ? true : false;
-	}
-	
-	bool connect() {
-		
-		std::this_thread::sleep_for(std::chrono::milliseconds(5)); // fake delay
-		return true;
 	}
 	
 	~Foo() = default;
@@ -83,20 +69,7 @@ void worker_with_scope_average_detector(interactive_pool< Foo > * pool)
 		try
 		{
 			interactive_pool_time elapsedTime;
-			// use a check connection style function to get the pool
-			interactive_pool_scoped_connection<Foo> c( pool, numeric_limits<uint32_t>::max(), &elapsedTime, &_average,
-				[](interactive_pool<Foo>::item& i ) 
-				{
-					if( !i->is_connected() )
-					{
-						cout << "Thread " << std::this_thread::get_id() << " Foo lost connecttion will connect again"  << endl;
-						return i->connect();
-					}
-						
-					cout << "Thread " << std::this_thread::get_id() << " successfully got connection"  << endl;
-					return true;
-				}
-			);
+			interactive_pool_scoped_connection<Foo> c( pool, numeric_limits<uint32_t>::max(), &elapsedTime, &_average );
 			// do task
 			c->Write();
 

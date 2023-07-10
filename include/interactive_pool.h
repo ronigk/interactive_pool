@@ -40,6 +40,7 @@ template <class T> class  interactive_pool
 public:
 	// defines a pool's item
 	typedef  std::unique_ptr< T > item;
+
 	// Constructor 
 	// size : number of resournces (initial buffer size)
 	// ini_func : function initializer 
@@ -81,7 +82,7 @@ public:
 	//							0 -> try just once.
 	//							Default = numeric_limits<uint32_t>::max()
 	// time_elapsed_ms 	: Time, in milliseconds, it took to get an instance from the thread pool
-	item get_item(uint32_t max_wait_ms = std::numeric_limits<uint32_t>::max(), interactive_pool_time* time_elapsed_ms = nullptr)
+	item get_item(uint32_t max_wait_ms = std::numeric_limits<uint32_t>::max(), interactive_pool_time* time_elapsed_ms = nullptr, std::function<bool(item&)> f = {} )
 	{
 		auto t0 = std::chrono::high_resolution_clock::now();
 		auto t1 = t0;
@@ -103,15 +104,30 @@ public:
 					// got at least 1 item, reuturn it and remove from pool
 					item j = std::move(_freeItems.front());
 					_freeItems.pop_front();
-					
-					if (time_elapsed_ms)
+					bool b_status_ok = true;
+					// if a check or initialize function is defined, call it
+					if( f )
 					{
-						// if metric is requested, calculate elapsed time
-						time_elapsed_ms->finish = std::chrono::high_resolution_clock::now();
-						time_elapsed_ms->elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(time_elapsed_ms->finish - time_elapsed_ms->init);
+						b_status_ok = f(j) ;
 					}
-					// return item
-					return j;
+					
+					// status ok, return item
+					if(b_status_ok)
+					{
+						if (time_elapsed_ms)
+						{
+							// if metric is requested, calculate elapsed time
+							time_elapsed_ms->finish = std::chrono::high_resolution_clock::now();
+							time_elapsed_ms->elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(time_elapsed_ms->finish - time_elapsed_ms->init);
+						}
+						// return item
+						return j;
+					}
+					else
+					{
+						_freeItems.push_back(std::move(j));
+					}
+					
 				}
 			} // end lock scope
 
@@ -264,9 +280,10 @@ template < class T> class interactive_pool_scoped_connection
 		, uint32_t max_wait_ms = 0							// maximun time, in milliseconds, to wait a free instance.  Once this time has elapsed, an exception will be thrown
 		, interactive_pool_time* time_elapsed_ms = nullptr	// if metric is desired a interactive_pool_time instance
 		, base_detector* detector = nullptr					// if want to use a detector for reporting and alarms 
+		, std::function<bool(typename interactive_pool<T>::item&)> f = {} 	// if want to test or initialize the item
 	) :_p(nullptr) , _pool(pool), _detector(detector)
 	{
-		(_p) = _pool->get_item(max_wait_ms, time_elapsed_ms);
+		(_p) = _pool->get_item(max_wait_ms, time_elapsed_ms, f);
 		if( _detector && time_elapsed_ms)
 		{
 			_detector->set_elapsed_time(static_cast<uint32_t>(time_elapsed_ms->elapsed_time.count()));
