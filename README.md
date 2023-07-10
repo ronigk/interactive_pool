@@ -106,6 +106,51 @@ void worker_with_scope(interactive_pool<Foo>* pool)
 
 ```
 
+## Calling a test or initialize function when get an instance from pool
+You may wish to test if the item in the pool is connect or initialized, also you may be intersted in reconnect a item if the connection was lost.
+In that case you can specify a test function to be executed before return a instance of the pool's item. When the function returns "true" the item will be returned in other case will keep waiting for a "good" item.
+
+### Scoped access getting metrics and test items. (Example)
+
+```	cpp
+void worker_with_scope(interactive_pool<Foo>* pool)
+{
+	for (int i = 0; i < operations; i++) 
+	{
+		try
+		{
+			interactive_pool_time elapsedTime; // get elapsed time necessary to connect
+			interactive_pool_scoped_connection<Foo> c( pool, 2000, &elapsedTime ,
+			[](interactive_pool<Foo>::item& i ) 
+				{
+					if( !i->is_connected() )
+					{
+						cout << "Thread " << std::this_thread::get_id() << " Foo lost connecttion will connect again"  << endl;
+						return i->connect(); // returns true or false
+					}
+						
+					cout << "Thread " << std::this_thread::get_id() << " successfully got connection"  << endl;
+					return true;
+				}
+			);
+			);
+
+			cout << "Thread " << std::this_thread::get_id() << " got item in " << elapsedTime.elapsed_time.count() << " ms" << endl;
+			c->doSOmeThing();
+		}
+		catch (std::exception& e)
+		{
+			cout << "Thread " << std::this_thread::get_id() << " Exception " << string(e.what()) << endl;
+			i--; // must complete all tasks 
+		}
+		// rest a little
+		std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+	}
+}
+
+```
+
+
 ## Cotrolling the time to access your resources
 You may wish to issue an alert or trigger an action when access times to pool resources exceed a pre-set threshold.
 2 plugins are offered : 
@@ -170,6 +215,9 @@ void worker_with_scope_average_detector(interactive_pool< Foo > * pool)
 }
 
 ```
+
+
+
 
 ## Compiling examples
 Detailed usage of all items are introduced in examples. To compile the examples just follow the bellow instructions :
